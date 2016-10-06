@@ -7,10 +7,10 @@
 
 #define MAX_ARGS 50
 
-struct {
-    char *before;
-    char *after;
-} c_pair;
+struct c_pair {
+    char first[256];
+    char second[256];
+};
 
 void getHostname(char* hostname) {
     FILE* fp;
@@ -23,16 +23,29 @@ void getHostname(char* hostname) {
     fclose(fp);
 }
 
-//void load_alias_file(c_pair *aliases[256]) {
-//    FILE *fp;
-//    char alias[256];
-//    char *argv[5];
-//    if((fp = fopen("./trash_alias", "r")) == NULL) {
-//        return;
-//    } else {
-//        while(fgets(alias, 256, fp) != NULL) {
-//        }
-//}
+void load_alias_file(struct c_pair *aliases, int *num_of_aliases) {
+    FILE *fp;
+    char alias[256];
+    char *argv[5];
+    int argc;
+    if((fp = fopen("./.trash_alias", "r")) == NULL) {
+        return;
+    } else {
+        while(fgets(alias, 256, fp) != NULL) {
+            char *line = alias;
+            if((argv[0] = strtok(line, " \t")) == NULL) 
+                    break;
+            argv[1] = strtok(NULL, "");
+
+            if(strcmp(argv[0], "alias") == 0) {
+                strcpy(aliases[*num_of_aliases].first, strtok(argv[1], "="));
+                strcpy(aliases[*num_of_aliases].second, strtok(NULL, "\n"));
+                printf("%d %s %s\n", *num_of_aliases, aliases[*num_of_aliases].first, aliases[*num_of_aliases].second);
+                *num_of_aliases = *num_of_aliases + 1;
+            }
+        }
+    }
+}
 
 void change_directory(char *path) {
     if(path == NULL) { 
@@ -50,7 +63,8 @@ int main(void) {
     char *argv[256];
     char *command;
 //    char *aliases[256];
-    struct c_pair *aliases[256];
+    struct c_pair aliases[128];
+    int num_of_alias = 0;
     int argc;
     int status;
     int parent2child[2], child2parent[2];
@@ -59,6 +73,16 @@ int main(void) {
 
     getHostname(hostname);
     user = getenv("USER");
+
+    load_alias_file(aliases, &num_of_alias);
+    printf("\nregistered aliases %d\n", num_of_alias);
+    for(int i = 0; i < num_of_alias; i++) {
+        printf("%s %s\n", aliases[i].first, aliases[i].second);
+    }
+
+    printf("\n##########################\n");
+    printf("# welcome to trash shell #\n");
+    printf("##########################\n\n\n");
 
     while(1) {
         getcwd(current_path, 256);
