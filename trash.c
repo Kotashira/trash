@@ -81,7 +81,7 @@ void load_alias_file(struct c_pair *aliases, int *num_of_aliases) {
                 tmp += 1;
                 *(strchr(tmp, '\"')) = '\0';
                 strcpy(aliases[*num_of_aliases].second, tmp);
-                printf("%d %s %s\n", *num_of_aliases, aliases[*num_of_aliases].first, aliases[*num_of_aliases].second);
+//                printf("%d %s %s\n", *num_of_aliases, aliases[*num_of_aliases].first, aliases[*num_of_aliases].second);
 
                 *num_of_aliases = *num_of_aliases + 1;
             }
@@ -119,7 +119,7 @@ int main(void) {
     load_alias_file(aliases, &num_of_alias);
     printf("\nregistered aliases %d\n", num_of_alias);
     for(int i = 0; i < num_of_alias; i++) {
-        printf("%s %s\n", aliases[i].first, aliases[i].second);
+        printf("%s=%s\n", aliases[i].first, aliases[i].second);
     }
 
     printf("\n##########################\n");
