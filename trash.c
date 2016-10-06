@@ -12,6 +12,43 @@ struct c_pair {
     char second[256];
 };
 
+char* str_concat(char* str1, char* str2) {
+    char *top = str1;
+
+    while(*(str1++) != '\0');
+    str1 -= 1;
+
+    do {
+        *(str1++) = *str2;
+    } while (*(str2++) != '\0');
+
+    return str1;
+}
+
+char* str_replace(char *src, char *target, char *replace) {
+    char *temp = (char*)malloc(sizeof(char) * 1000);
+    if(temp == NULL) {
+        printf("could not allocate memory\n");
+        exit(1);
+    }
+    char *p;
+    if((p = strstr(src, target)) == NULL) 
+        return src;
+    *p = '\0';
+    p += strlen(target);
+
+    strcpy(temp, p);
+
+    str_concat(src, replace);
+    str_concat(src, temp);
+
+    free(temp);
+
+    return src;
+}
+
+
+
 void getHostname(char* hostname) {
     FILE* fp;
     if((fp = fopen("/proc/sys/kernel/hostname", "r")) == NULL) {
@@ -40,7 +77,12 @@ void load_alias_file(struct c_pair *aliases, int *num_of_aliases) {
             if(strcmp(argv[0], "alias") == 0) {
                 strcpy(aliases[*num_of_aliases].first, strtok(argv[1], "="));
                 strcpy(aliases[*num_of_aliases].second, strtok(NULL, "\n"));
+                char* tmp = aliases[*num_of_aliases].second;
+                tmp += 1;
+                *(strchr(tmp, '\"')) = '\0';
+                strcpy(aliases[*num_of_aliases].second, tmp);
                 printf("%d %s %s\n", *num_of_aliases, aliases[*num_of_aliases].first, aliases[*num_of_aliases].second);
+
                 *num_of_aliases = *num_of_aliases + 1;
             }
         }
@@ -91,6 +133,10 @@ int main(void) {
     
         fgets(input, sizeof(input), stdin);
         input[strlen(input)-1] = '\0';
+
+        for(int i = 0; i < num_of_alias; i++) {
+            strcpy(input ,str_replace(input, aliases[i].first, aliases[i].second));  
+        }
 
         command = input;
 
